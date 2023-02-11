@@ -15,7 +15,7 @@
 /*** defines ***/
 
 
-#define VERSION "0.0.1"
+#define VERSION "0.0.3"
 
 
 #define CTRL_KEY(k) ((k) & 0x1f)
