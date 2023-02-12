@@ -1,5 +1,10 @@
 /*** includes ***/
 
+#define VERSION "0.1.2"
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+#define CTRL_KEY(k) ((k) & 0x1f)
 
 #include <ctype.h>
 #include <errno.h>
@@ -10,16 +15,6 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
-
-
-/*** defines ***/
-
-
-#define VERSION "0.1.1"
-
-
-#define CTRL_KEY(k) ((k) & 0x1f)
-
 
 enum editorKey {
 	ARROW_LEFT = 1000,
@@ -193,8 +188,7 @@ void editorOpen(char *filename) {
   ssize_t linelen;
   linelen = getline(&line, &linecap, fp);
   if (linelen != -1) {
-    while (linelen > 0 && (line[linelen - 1] == '\n' ||
-                           line[linelen - 1] == '\r'))
+    while (linelen > 0 && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
       linelen--;
     E.row.size = linelen;
     E.row.chars = malloc(linelen + 1);
@@ -247,6 +241,45 @@ void editorDrawRows(struct abuf *ab) {
 					"dcode %s", VERSION);
 				if (welcomelen > E.screencols) welcomelen = E.screencols;
 				int padding = (E.screencols - welcomelen);
+				if (padding) {
+					abAppend(ab, "~", 1);
+					padding--;
+				}
+				while (padding--) abAppend(ab, " ", 1);
+				abAppend(ab, welcome, welcomelen);
+			} else if (E.numrows == 0 && y == E.screenrows / 2 - 1)
+			{
+				char welcome[80];
+				int welcomelen = snprintf(welcome, sizeof(welcome),
+					"Welcome to dcode -- the simple, clean, terminal text editor");
+				if (welcomelen > E.screencols) welcomelen = E.screencols;
+				int padding = (E.screencols - welcomelen) / 2;
+				if (padding) {
+					abAppend(ab, "~", 1);
+					padding--;
+				}
+				while (padding--) abAppend(ab, " ", 1);
+				abAppend(ab, welcome, welcomelen);
+			} else if (E.numrows == 0 && y == E.screenrows / 2)
+			{
+				char welcome[80];
+				int welcomelen = snprintf(welcome, sizeof(welcome),
+					"Please pass the file as an argument (e.g. 'dcode myfile.py')");
+				if (welcomelen > E.screencols) welcomelen = E.screencols;
+				int padding = (E.screencols - welcomelen) / 2;
+				if (padding) {
+					abAppend(ab, "~", 1);
+					padding--;
+				}
+				while (padding--) abAppend(ab, " ", 1);
+				abAppend(ab, welcome, welcomelen);
+			} else if (E.numrows == 0 && y == E.screenrows / 2 + 1)
+			{
+				char welcome[80];
+				int welcomelen = snprintf(welcome, sizeof(welcome),
+					"Or, choose an option below:");
+				if (welcomelen > E.screencols) welcomelen = E.screencols;
+				int padding = (E.screencols - welcomelen) / 2;
 				if (padding) {
 					abAppend(ab, "~", 1);
 					padding--;
